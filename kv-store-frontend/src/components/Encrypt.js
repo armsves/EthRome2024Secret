@@ -59,19 +59,6 @@ const Encrypt = () => {
                                 className="mt-2 block w-full pl-2 text-brand-blue rounded-md border border-brand-orange bg-brand-tan py-1.5 shadow-sm focus:ring-2 focus:ring-brand-blue sm:text-sm"
                             />
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium leading-6 w-full">
-                                Viewing Key
-                            </label>
-                            <input
-                                type="text"
-                                value={viewingKey}
-                                onChange={(e) => setViewingKey(e.target.value)}
-                                placeholder="Enter viewing key"
-                                required
-                                className="mt-2 block w-full pl-2 text-brand-blue rounded-md border border-brand-orange bg-brand-tan py-1.5 shadow-sm focus:ring-2 focus:ring-brand-blue sm:text-sm"
-                            />
-                        </div>
                         <div className="flex justify-center mt-4">
                             <button
                                 type="submit"

@@ -1,7 +1,7 @@
 use crate::{
     msg::{
         ExecuteMsg, GatewayMsg, InputRetrieveMsg, InputStoreMsg, InstantiateMsg, QueryMsg,
-        ResponseRetrieveMsg, ResponseStoreMsg,
+        ResponseRetrieveMsg, ResponseStoreMsg, ResponseRetrieveAll
     },
     state::{State, StorageItem, CONFIG, KV_MAP},
 };
@@ -126,12 +126,12 @@ fn store_value(
     let input: InputStoreMsg = serde_json_wasm::from_str(&input_values)
         .map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    let timelimit = env.block.time.seconds() + 60;
+    let time_limit = env.block.time.seconds() + 60;
 
     // create a task information store
     let storage_item = StorageItem {
         value: input.value,
-        timelimit: timelimit,
+        time_limit: time_limit,
         viewing_key: input.viewing_key,
     };
 
@@ -177,7 +177,7 @@ fn store_value(
 
 fn change_value(
     deps: DepsMut,
-    _env: Env,
+    env: Env,
     input_values: String,
     task: Task,
     input_hash: Binary,
@@ -197,12 +197,12 @@ fn change_value(
         ));
     }
 
-    let timelimit: u64 = _env.block.time.seconds() + 36;
+    let time_limit: u64 = env.block.time.seconds() + 60;
 
     // create a task information store
     let storage_item = StorageItem {
         value: input.value,
-        timelimit: timelimit,
+        time_limit: time_limit,
         viewing_key: input.viewing_key,
     };
 
@@ -245,9 +245,10 @@ fn change_value(
         .add_attribute("status", "stored value with key"))
 }
 
+
 fn retrieve_value(
     deps: DepsMut,
-    env: Env,
+    _env: Env,
     input_values: String,
     task: Task,
     input_hash: Binary,
@@ -261,11 +262,12 @@ fn retrieve_value(
         .get(deps.storage, &input.key)
         .ok_or_else(|| StdError::generic_err("Value for this key not found"))?;
 
+    /*
     if env.block.time.seconds() > value.timelimit {
         return Err(StdError::generic_err(
             "Timelimit exceeded, cannot retrieve value",
         ));
-    }
+    }*/
 
     if value.viewing_key != input.viewing_key {
         return Err(StdError::generic_err("Viewing Key incorrect or not found"));
@@ -274,8 +276,8 @@ fn retrieve_value(
     let data = ResponseRetrieveMsg {
         key: input.key.to_string(),
         message: "Retrieved value successfully".to_string(),
-        timelimit: value.timelimit,
         value: value.value,
+        time_limit: value.time_limit,
     };
 
     // Serialize the struct to a JSON string1
@@ -342,6 +344,9 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
         QueryMsg::RetrieveValue { key, viewing_key } => {
             retrieve_value_query(deps, key, viewing_key)
         }
+        QueryMsg::RetrieveAll {} => {
+            retrieve_all(deps)
+        }
     };
     pad_query_result(response, BLOCK_SIZE)
 }
@@ -359,6 +364,43 @@ fn retrieve_value_query(deps: Deps, key: String, viewing_key: String) -> StdResu
         key: key.to_string(),
         message: "Retrieved value successfully".to_string(),
         value: value.value,
-        timelimit: value.timelimit,
+        time_limit: value.time_limit,
     })
+}
+
+
+fn retrieve_all(deps: Deps) -> StdResult<Binary> {
+
+    let keys = KV_MAP.iter(deps.storage);
+    //.map(option::unwrap).collect::<Vec<String>>();
+
+    let mut keys_array: Vec<(String, u64)> = Vec::new();
+
+    
+    for result in keys? {
+        let (key, value) = result?;
+        keys_array.push((key, value.time_limit));
+    }
+
+    to_binary(&ResponseRetrieveAll {
+        key: keys_array,
+        message: "Retrieved value successfully".to_string(),
+    })
+    
+    /* 
+    let value = KV_MAP
+        .get(deps.storage, &key)
+        .ok_or_else(|| StdError::generic_err("Value for this key not found"))?;
+
+    if value.viewing_key != viewing_key {
+        return Err(StdError::generic_err("Viewing Key incorrect or not found"));
+    }
+
+    to_binary(&ResponseRetrieveMsg {
+        key: key.to_string(),
+        message: "Retrieved value successfully".to_string(),
+        value: value.value,
+        time_limit: value.time_limit,
+    })
+    */
 }

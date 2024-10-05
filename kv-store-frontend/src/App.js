@@ -7,6 +7,7 @@ import { initializeWeb3Modal } from './config/web3ModalConfig';
 import { useInitEthereum } from "./functions/initEthereum";
 import Encrypt from './components/Encrypt';
 import QueryValue from './components/Query';
+import ListAll from './components/ListAll';
 
 function App() {
   const [chainId, setChainId] = useState("");
@@ -29,10 +30,11 @@ function App() {
 
         <div className="flex flex-col items-center">
           <p className="text-xl font-bold mt-4">Time based wallet-bound secret sharing and revoking</p>
+          <ListAll />
           <Encrypt />
-          <QueryValue />
+         
         </div>
-        <div className="bottom-0 left-0 right-0 flex flex-row justify-around items-center bg-blue-500">
+        <div className="fixed bottom-0 left-0 right-0 flex flex-row justify-around items-center bg-blue-500">
           <a className="transform scale-50" href="https://scrt.network/" target="_blank" rel="noopener noreferrer">
             <img src={SecretLogo} alt="Secret Logo" className="w-18 h-12 mt-4" />
           </a>

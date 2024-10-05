@@ -18,7 +18,7 @@ pub struct State {
 pub struct StorageItem {
     // Value of the StorageItem  
     pub value: String,
-    pub timelimit: u64,
+    pub time_limit: u64,
     // ViewingKey of the StorageItem to unlock the value
     pub viewing_key: String,
 }

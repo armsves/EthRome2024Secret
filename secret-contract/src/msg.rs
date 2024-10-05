@@ -24,9 +24,6 @@ pub struct InputStoreMsg {
     pub key: String,
     // Value of the StorageItem  
     pub value: String,
-    // Address
-    //pub address: String,
-    pub timelimit: u64,
     // ViewingKey of the StorageItem to unlock the value
     pub viewing_key: String,
 }
@@ -53,16 +50,22 @@ pub struct ResponseRetrieveMsg {
     pub key: String,
     // value of the StorageItem  
     pub value: String,
-    // timelimit of the StorageItem
-    pub timelimit: u64,
     // response message
-    pub message: String
+    pub message: String,
+    pub time_limit: u64
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+pub struct ResponseRetrieveAll {
+    pub key: Vec<(String, u64)>,
+    pub message: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum QueryMsg {
-    RetrieveValue {key: String, viewing_key: String}
+    RetrieveValue {key: String, viewing_key: String},
+    RetrieveAll {}
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]

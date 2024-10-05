@@ -14,8 +14,6 @@ const QueryValue = () => {
         e.preventDefault();
 
         try {
-
-            
             // Request a signature from the user's wallet
             const signer = provider.getSigner();
             const message = "Please sign this message to authenticate your query.";

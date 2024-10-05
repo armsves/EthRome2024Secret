@@ -116,7 +116,7 @@ fn try_handle(
 
 fn store_value(
     deps: DepsMut,
-    _env: Env,
+    env: Env,
     input_values: String,
     task: Task,
     input_hash: Binary,
@@ -126,7 +126,7 @@ fn store_value(
     let input: InputStoreMsg = serde_json_wasm::from_str(&input_values)
         .map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    let timelimit = _env.block.time.seconds() + 15;
+    let timelimit = env.block.time.seconds() + 60;
 
     // create a task information store
     let storage_item = StorageItem {
@@ -247,7 +247,7 @@ fn change_value(
 
 fn retrieve_value(
     deps: DepsMut,
-    _env: Env,
+    env: Env,
     input_values: String,
     task: Task,
     input_hash: Binary,
@@ -261,7 +261,7 @@ fn retrieve_value(
         .get(deps.storage, &input.key)
         .ok_or_else(|| StdError::generic_err("Value for this key not found"))?;
 
-    if _env.block.time.seconds() > value.timelimit {
+    if env.block.time.seconds() > value.timelimit {
         return Err(StdError::generic_err(
             "Timelimit exceeded, cannot retrieve value",
         ));

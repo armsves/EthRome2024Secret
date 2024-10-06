@@ -57,7 +57,7 @@ pub struct ResponseRetrieveMsg {
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct ResponseRetrieveAll {
-    pub key: Vec<(String, u64)>,
+    pub key: Vec<(String, u64, String, String, bool)>,
     pub message: String,
 }
 

@@ -21,4 +21,7 @@ pub struct StorageItem {
     pub time_limit: u64,
     // ViewingKey of the StorageItem to unlock the value
     pub viewing_key: String,
+    pub owner: String,
+    pub viewer: String,
+    pub active: bool,
 }

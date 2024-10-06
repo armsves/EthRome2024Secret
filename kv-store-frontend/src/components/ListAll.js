@@ -10,6 +10,26 @@ const ListAll = () => {
     const [secretData, setSecretData] = useState('');
 
     useEffect(() => {
+        const getAddress = async () => {
+            try {
+                if (window.ethereum) {
+                    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+                    await provider.send("eth_requestAccounts", []); // Request access to MetaMask accounts
+                    const signer = provider.getSigner();
+                    const address = await signer.getAddress();
+                    //console.log('Wallet address:', address);
+                    setAddress(address.toLowerCase());
+                } else {
+                    console.error("MetaMask is not installed");
+                }
+            } catch (error) {
+                console.error("Failed to get wallet address", error);
+            }
+        };
+        getAddress();
+    }, []);
+
+    useEffect(() => {
         const fetchData = async () => {
             try {
                 const secretjs = new SecretNetworkClient({
@@ -42,7 +62,7 @@ const ListAll = () => {
             return [];
         }
 
-        return queryResult.key.map(([key, seconds]) => ({ key, seconds }));
+        return queryResult.key.map(([key, time_limit, owner, viewer, active]) => ({ key, time_limit, owner, viewer, active }));
     };
 
     const formatSeconds = (seconds) => {
@@ -100,15 +120,27 @@ const ListAll = () => {
                     <p><strong>List of secrets:</strong></p>
                     {transformedData.length > 0 ? (
                         <ul>
-                            {transformedData.map(({ key, seconds }) => (
+                            {transformedData.map(({ key, time_limit, owner, viewer, active }) => (
                                 <li key={key}>
-                                    <span>{key}</span>: <span>{formatSeconds(seconds)}</span>
-                                    <button
-                                        onClick={() => handleButtonClick(key)}
-                                        className="ml-2 py-1 px-2 border border-transparent text-sm font-medium rounded-md text-white bg-brand-blue hover:bg-brand-dark-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue"
-                                    >
-                                        Reveal Secret
-                                    </button>
+                                    <span>{key}</span>: <span>{formatSeconds(time_limit)}</span>
+                                    <p>Owner: {owner}</p>
+                                    <p> Viewer: {viewer}</p>
+                                    {viewer.toLowerCase() === address.toLowerCase() && (
+                                        <button
+                                            onClick={() => handleButtonClick(key)}
+                                            className="ml-2 py-1 px-2 border border-transparent text-sm font-medium rounded-md text-white bg-brand-blue hover:bg-brand-dark-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue"
+                                        >
+                                            Reveal Secret
+                                        </button>
+                                    )}
+                                    {owner.toLowerCase() === address.toLowerCase() && (
+                                        <button
+                                            onClick={() => handleButtonClick(key)}
+                                            className="ml-2 py-1 px-2 border border-transparent text-sm font-medium rounded-md text-white bg-brand-blue hover:bg-brand-dark-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue"
+                                        >
+                                            {active ? "Revoke Access" : "Grant Access"}
+                                        </button>
+                                    )}
                                 </li>
                             ))}
                         </ul>

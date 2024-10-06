@@ -107,7 +107,7 @@ fn try_handle(
     // determine which function to call based on the included handle
     let handle = msg.handle.as_str();
     match handle {
-        "store_value" => store_value(deps, env, msg.input_values, msg.task, msg.input_hash),
+        "store_value" => store_value(deps, env, msg.input_values, msg.task, msg.input_hash, msg.user_address.to_string()),
         "retrieve_value" => retrieve_value(deps, env, msg.input_values, msg.task, msg.input_hash),
         "change_value" => change_value(deps, env, msg.input_values, msg.task, msg.input_hash),
         _ => Err(StdError::generic_err("invalid handle".to_string())),
@@ -120,6 +120,7 @@ fn store_value(
     input_values: String,
     task: Task,
     input_hash: Binary,
+    owner: String,
 ) -> StdResult<Response> {
     let config = CONFIG.load(deps.storage)?;
 
@@ -133,8 +134,12 @@ fn store_value(
         value: input.value,
         time_limit: time_limit,
         viewing_key: input.viewing_key,
+        owner: owner,
+        viewer: input.key,
+        active: true,
     };
 
+    /*
     let map_contains_kv = KV_MAP.contains(deps.storage, &input.key);
 
     if map_contains_kv {
@@ -142,12 +147,16 @@ fn store_value(
             "Stored value already exists, not executing again",
         ));
     }
+    */
+
+    let len = KV_MAP.get_len(deps.storage)?+1;
+    let len_str = len.to_string();
 
     // map task to task info
-    KV_MAP.insert(deps.storage, &input.key, &storage_item)?;
+    KV_MAP.insert(deps.storage, &len_str, &storage_item)?;
 
     let data = ResponseStoreMsg {
-        key: input.key.to_string(),
+        key: len_str,
         message: "Value store completed successfully".to_string(),
     };
 
@@ -204,6 +213,9 @@ fn change_value(
         value: input.value,
         time_limit: time_limit,
         viewing_key: input.viewing_key,
+        owner: "owner".to_string(),
+        viewer: "viewer".to_string(),
+        active: true,
     };
 
     // Remove old value first
@@ -368,39 +380,17 @@ fn retrieve_value_query(deps: Deps, key: String, viewing_key: String) -> StdResu
     })
 }
 
-
 fn retrieve_all(deps: Deps) -> StdResult<Binary> {
-
     let keys = KV_MAP.iter(deps.storage);
-    //.map(option::unwrap).collect::<Vec<String>>();
-
-    let mut keys_array: Vec<(String, u64)> = Vec::new();
-
-    
+    let mut keys_array: Vec<(String, u64, String, String, bool)> = Vec::new();
+   
     for result in keys? {
         let (key, value) = result?;
-        keys_array.push((key, value.time_limit));
+        keys_array.push((key, value.time_limit, value.owner, value.viewer, value.active));
     }
 
     to_binary(&ResponseRetrieveAll {
         key: keys_array,
         message: "Retrieved value successfully".to_string(),
     })
-    
-    /* 
-    let value = KV_MAP
-        .get(deps.storage, &key)
-        .ok_or_else(|| StdError::generic_err("Value for this key not found"))?;
-
-    if value.viewing_key != viewing_key {
-        return Err(StdError::generic_err("Viewing Key incorrect or not found"));
-    }
-
-    to_binary(&ResponseRetrieveMsg {
-        key: key.to_string(),
-        message: "Retrieved value successfully".to_string(),
-        value: value.value,
-        time_limit: value.time_limit,
-    })
-    */
 }

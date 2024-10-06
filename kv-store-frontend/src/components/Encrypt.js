@@ -35,26 +35,26 @@ const Encrypt = () => {
                     <div className="border-4 border-brand-orange rounded-lg p-4">
                         <div>
                             <label className="block text-sm font-medium leading-6 w-full">
-                                Key
+                                Viewer Address
                             </label>
                             <input
                                 type="text"
                                 value={key}
                                 onChange={(e) => setKey(e.target.value)}
-                                placeholder="Enter key"
+                                placeholder="Enter viewer address"
                                 required
                                 className="mt-2 block w-full pl-2 text-brand-blue rounded-md border border-brand-orange bg-brand-tan py-1.5 shadow-sm focus:ring-2 focus:ring-brand-blue sm:text-sm"
                             />
                         </div>
                         <div>
                             <label className="block text-sm font-medium leading-6 w-full">
-                                Value
+                                Secret Value
                             </label>
                             <input
                                 type="text"
                                 value={value}
                                 onChange={(e) => setValue(e.target.value)}
-                                placeholder="Enter value"
+                                placeholder="Enter secret value"
                                 required
                                 className="mt-2 block w-full pl-2 text-brand-blue rounded-md border border-brand-orange bg-brand-tan py-1.5 shadow-sm focus:ring-2 focus:ring-brand-blue sm:text-sm"
                             />

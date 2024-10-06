@@ -2,6 +2,7 @@ import './App.css';
 import SecretLogo from './secret-logo.png';
 import TwitterXLogo from './twitterx.png';
 import GihubLogo from './github.png';
+import SensiShareLogo from './sensishare.jpg';
 import React, { useState, useEffect } from "react";
 import { initializeWeb3Modal } from './config/web3ModalConfig';
 import { useInitEthereum } from "./functions/initEthereum";
@@ -21,10 +22,13 @@ function App() {
   return (
     <>
       <div className="min-h-screen text-brand-orange px-6 lg:px-8">
-        <div className="flex flex-row justify-end">
-          <div className="connect-wallet-button-container">
-            <w3m-button className="connect-wallet-button"
-              themeMode="dark" />
+        <div className="flex items-center justify-between p-4">
+          <div className="flex-1">
+            <img src={SensiShareLogo} alt="SensiShareLogo" className="h-10" />
+          </div>
+          <h1 className="flex-2 text-center text-xl font-bold">SensiShare</h1>
+          <div className="flex-1 flex justify-end">
+            <w3m-button className="connect-wallet-button" themeMode="dark" />
           </div>
         </div>
 
@@ -32,7 +36,7 @@ function App() {
           <p className="text-xl font-bold mt-4">Time based wallet-bound secret sharing and revoking</p>
           <ListAll />
           <Encrypt />
-         
+
         </div>
         <div className="fixed bottom-0 left-0 right-0 flex flex-row justify-around items-center bg-blue-500">
           <a className="transform scale-50" href="https://scrt.network/" target="_blank" rel="noopener noreferrer">

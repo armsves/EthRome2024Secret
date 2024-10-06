@@ -10,6 +10,25 @@ const QueryValue = () => {
 
     const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
 
+    useEffect(() => {
+        const getAddress = async () => {
+            try {
+                if (window.ethereum) {
+                    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+                    await provider.send("eth_requestAccounts", []); // Request access to MetaMask accounts
+                    const signer = provider.getSigner();
+                    const address = await signer.getAddress();
+                    //console.log('Wallet address:', address);
+                    setAddress(address.toLowerCase());
+                } else {
+                    console.error("MetaMask is not installed");
+                }
+            } catch (error) {
+                console.error("Failed to get wallet address", error);
+            }
+        };
+        getAddress();
+    }, []);
     const handleQuery = async (e) => {
         e.preventDefault();
 
